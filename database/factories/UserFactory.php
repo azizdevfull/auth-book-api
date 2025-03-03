@@ -2,9 +2,12 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Image;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -41,4 +44,11 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+    public function withAvatar()
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->image()->create(Image::factory()->make()->toArray());
+        });
+    }
+    
 }
