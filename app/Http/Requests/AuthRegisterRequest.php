@@ -22,7 +22,10 @@ class AuthRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+            'name'=>'required|min:3',
+            'email'=> 'required|unique:email',
+            'password'=> 'required|min:6',
+            'avatar'=>'required|image|size:2048'
         ];
     }
 }
