@@ -22,7 +22,7 @@ class AuthRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            
         ];
     }
 }
