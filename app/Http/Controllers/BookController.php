@@ -6,6 +6,7 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use App\Http\Resources\BookResource;
 use App\Http\Requests\BookStoreRequest;
+use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\BookUpdateRequest;
 
 class BookController extends Controller
@@ -30,6 +31,15 @@ class BookController extends Controller
             ]
         ]);
     }
+    public function search(BookSearchRequest $request)
+    {
+    $searchTerm = $request->get('query', '');
+    $perPage = $request->get('per_page', 10);
+    $books = Book::where('title', 'like', "%$searchTerm%")
+        ->orWhere('description', 'like', "%$searchTerm%")
+        ->paginate($perPage);
+    return response()->json($books);
+    } 
     public function store(BookStoreRequest $request)
     {   
         $user=auth()->user();
