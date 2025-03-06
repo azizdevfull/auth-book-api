@@ -25,7 +25,7 @@ class AuthRegisterRequest extends FormRequest
             'name'=>'required|min:3',
             'email'=> 'required',
             'password'=> 'required|min:6',
-            'avatar'=>'required' //|image|size:2048'
+            'image'=>'required' //|image|size:2048'
         ];
     }
 }

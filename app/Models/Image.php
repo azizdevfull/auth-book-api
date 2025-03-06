@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -14,7 +15,8 @@ class Image extends Model
     protected $fillable = [
         'imageable_id',
         'imageable_type',
-        'path'
+        'path',
+       // 'url',
     ];
 
     public function user()
@@ -26,8 +28,16 @@ class Image extends Model
     {
         return $this->morohTo();
     }
-    public function url()
+    public function url(): Attribute
     {
-        return URL::to('storage/' . $this->path);
+        return Attribute::make(fn(): string => URL::to('storage/' . $this->path));
     }
+    // public function imagrUrl()
+    // {
+    //     return URL::to('storage/' . $this->path);
+    // }
+    // public function url()
+    // {
+    //     return asset('storage/' . $this->attributes['url']);
+    // }
 }

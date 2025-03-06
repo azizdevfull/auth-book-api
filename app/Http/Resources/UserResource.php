@@ -18,7 +18,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name'=>$this->name,
             'email'=>$this->email,
-            'avatar' =>new ImageResource( $this->whenLoaded('avatar',)),
+            'image' =>new ImageResource( $this->whenLoaded('image',)),
         ];
     }
 }
