@@ -23,9 +23,9 @@ class AuthRegisterRequest extends FormRequest
     {
         return [
             'name'=>'required|min:3',
-            'email'=> 'required|unique:email',
+            'email'=> 'required',
             'password'=> 'required|min:6',
-            'avatar'=>'required|image|size:2048'
+            'avatar'=>'required' //|image|size:2048'
         ];
     }
 }
