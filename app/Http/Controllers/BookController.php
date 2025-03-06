@@ -3,52 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use App\Http\Resources\BookResource;
+use Illuminate\Support\Facades\Auth;
+
 use App\Http\Requests\BookStoreRequest;
 use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\BookUpdateRequest;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {        
-        $perPage=request()->per_page ?? 10;
-        $books=Book::paginate( $perPage);
-        return response()->json([
-            'data'=>BookResource::collection($books),
-            'meta'=>[
-                'total'=>$books->total(),
-                'current_page'=>$books->currentPage(),
-                 'per_page'=>$books->perPage(),
-                'last_page'=>$books->lastPage(),
-            ],
-            'links' => [
-                'first' => $books->url(1),
-                'last' => $books->url($books->lastPage()),
-                'prev' => $books->previousPageUrl(),
-                'next' => $books->nextPageUrl(),
-            ]
-        ]);
+        $query = Book::query();
+
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+
+        $books = $query->with('images')
+            ->latest()
+            ->paginate(10);
+
+        return BookResource::collection($books);
+        
+            
     }
-    public function search(BookSearchRequest $request)
-    {
-    $searchTerm = $request->get('query', '');
-    $perPage = $request->get('per_page', 10);
-    $books = Book::where('title', 'like', "%$searchTerm%")
-        ->orWhere('description', 'like', "%$searchTerm%")
-        ->paginate($perPage);
-    return response()->json($books);
-    } 
+    // public function search(BookSearchRequest $request)
+    // {
+    // $searchTerm = $request->get('query', '');
+    // $perPage = $request->get('per_page', 10);
+    // $books = Book::where('title', 'like', "%$searchTerm%")
+    //     ->orWhere('description', 'like', "%$searchTerm%")
+    //     ->paginate($perPage);
+    // return response()->json($books);
+    // } 
     public function store(BookStoreRequest $request)
     {   
-        $user=auth()->user();
-        $book=$user->create([
+        $book=Book::create([
             'title'=>$request->title,
-            'content'=>$request->content,
-            'author_id'=>$request->author_id
+            'description'=>$request->description,
+            'author_id' => $request->author_id ?: Auth::id()
         ]);
-            return response()->json($book,201); 
+        $images = [];
+    if ($request->hasFile('images')) {
+      foreach ($request->file('images') as $image) {
+           $images[] = [
+               'path' => $this->uploadPhoto($image, "book"),
+                'imageable_id'=>$book->id,
+                'imageable_type'=>Book::class,
+            ];
+       }
+}
+Image::insert($images);
+
+return response()->json([
+    'success'=>true,
+]);
+ 
     }
     public function show(string $id)
     {
@@ -60,18 +74,43 @@ class BookController extends Controller
         $book=Book::findOrFail($id);
         $book->update([
             'title'=>$request->title,
-            'content'=>$request->content,
-            'author_id'=>$request->author_id
+            'description'=>$request->description,
+
         ]);
-        return response()->json($book);
+        if($request->hasFile('images')){
+            foreach($book->images as $image){
+                $this->deletePhoto($image->path);
+                $image->delete();
+            }
+        $images=[];
+
+        foreach($request->file('images')as $image)
+        {
+            $images[]=[
+                'path'=>$this->uploadPhoto($image,'book'),
+                'imageable_id'=>$book->id,
+                'imageable_type'=>Book::class,
+            ];
+        }
+        Image::insert($images);
+
+        return response()->json([
+            'success'=>true,
+            'book'=>new BookResource($book),
+        ]);
+        }
         
     }
     public function destroy(string $id)
     {
-        $book = Book::findOrFail($id);
+        $book=Book::findOrFail($id);
+        foreach($book->images as $image){
+            $this->deletePhoto($image->path);
+            $image->delete();
+        }
         $book->delete();
-        return response()->json([
-            'message'=>'Sizning Kitobingiz muaffaqqiyatli o`chirildi'
-        ]);
     }
 }
+    
+
+
