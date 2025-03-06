@@ -22,7 +22,7 @@ class AuthController extends Controller
     
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imagePath = $this->uploadPhoto($image, 'avatars'); 
+            $imagePath = $this->uploadPhoto($image, 'images'); 
     
             Image::create([
                 'path' => $imagePath,
@@ -33,7 +33,7 @@ class AuthController extends Controller
         return response()->json([
             'success'=>true,
             'token'=>$token,
-            'user'=> new UserResource($user->load('avatar'))
+            'user'=> new UserResource($user->load('image'))
         ]);
     }
     }
@@ -53,7 +53,7 @@ class AuthController extends Controller
     return response()->json([
         'success'=>true,
         'token'=>$token,
-        'user'=> new UserResource($user->load('avatar'))
+        'user'=> new UserResource($user->load('image'))
 
     ]);
     }
