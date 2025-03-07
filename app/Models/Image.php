@@ -16,17 +16,16 @@ class Image extends Model
         'imageable_id',
         'imageable_type',
         'path',
-       // 'url',
+        // 'url',
     ];
 
     public function user()
-
     {
         return $this->belongsTo(User::class);
     }
     public function imageable()
     {
-        return $this->morohTo();
+        return $this->morphTo();
     }
     public function url(): Attribute
     {

@@ -22,10 +22,8 @@ class BookStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => $this->title,
-            'description' => $this->description,
-            
-
+            // 'title' => $this->title,
+            // 'description' => $this->description,
         ];
     }
 }
